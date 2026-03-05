@@ -1,5 +1,7 @@
 package mr
 
+import "time"
+
 //
 // RPC definitions.
 //
@@ -19,5 +21,32 @@ type ExampleReply struct {
 	Y int
 }
 
-// Add your RPC definitions here.
+type TaskState int
 
+// task have three states
+// if is idle
+const (
+	Idle TaskState = iota
+	Running
+	Finished
+)
+
+type TaskType int
+
+const (
+	Map TaskType = iota
+	Reduce
+	Wait
+	Exit
+)
+
+type Task struct {
+	Type      TaskType
+	ID        int
+	StartTime time.Time
+	State     TaskState
+}
+
+// Add your RPC definitions here.
+type MyArgs struct {
+}
