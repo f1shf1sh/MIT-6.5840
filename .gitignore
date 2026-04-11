@@ -1,3 +1,9 @@
 pkg/
 *-handin.tar.gz
 sock123
+
+# vscode configure file
+.vscode
+
+# MAC
+.DS_Store
