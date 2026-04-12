@@ -1,0 +1,72 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="760" viewBox="0 0 1200 760">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#375a7f"/>
+    </marker>
+    <style>
+      .title { font: 700 28px Arial, sans-serif; fill: #17324d; }
+      .box-title { font: 700 20px Arial, sans-serif; fill: #17324d; }
+      .text { font: 16px Arial, sans-serif; fill: #264653; }
+      .small { font: 14px Arial, sans-serif; fill: #264653; }
+      .box { stroke: #375a7f; stroke-width: 2.5; rx: 18; ry: 18; }
+      .arrow { stroke: #375a7f; stroke-width: 3; fill: none; marker-end: url(#arrow); }
+      .dash { stroke-dasharray: 10 8; }
+    </style>
+  </defs>
+
+  <rect width="1200" height="760" fill="#f7fbff"/>
+  <text x="600" y="48" text-anchor="middle" class="title">MapReduce Lab Architecture</text>
+
+  <rect x="420" y="90" width="360" height="150" class="box" fill="#d9ecff"/>
+  <text x="600" y="125" text-anchor="middle" class="box-title">Coordinator</text>
+  <text x="450" y="160" class="text">- phase: Map / Reduce / Done</text>
+  <text x="450" y="188" class="text">- map task pool / reduce task pool</text>
+  <text x="450" y="216" class="text">- done counters</text>
+  <text x="450" y="244" class="text">- timeout checker + attempt retry</text>
+
+  <rect x="80" y="310" width="260" height="160" class="box" fill="#fff4d6"/>
+  <text x="210" y="345" text-anchor="middle" class="box-title">Map Worker</text>
+  <text x="110" y="380" class="text">1. RequestTask()</text>
+  <text x="110" y="408" class="text">2. Read input split</text>
+  <text x="110" y="436" class="text">3. mapf(...)</text>
+  <text x="110" y="464" class="text">4. Partition by ihash(key)%NReduce</text>
+
+  <rect x="860" y="310" width="260" height="160" class="box" fill="#ffe2dc"/>
+  <text x="990" y="345" text-anchor="middle" class="box-title">Reduce Worker</text>
+  <text x="890" y="380" class="text">1. RequestTask()</text>
+  <text x="890" y="408" class="text">2. Read all mr-X-Y files</text>
+  <text x="890" y="436" class="text">3. Sort by key</text>
+  <text x="890" y="464" class="text">4. Group + reducef(...)</text>
+
+  <rect x="70" y="560" width="280" height="120" class="box" fill="#e7f7ec"/>
+  <text x="210" y="595" text-anchor="middle" class="box-title">Input Files</text>
+  <text x="105" y="630" class="text">- split 0</text>
+  <text x="105" y="656" class="text">- split 1 ... split M-1</text>
+
+  <rect x="430" y="540" width="340" height="160" class="box" fill="#f2ecff"/>
+  <text x="600" y="575" text-anchor="middle" class="box-title">Intermediate Files</text>
+  <text x="470" y="610" class="text">- mr-0-0, mr-0-1 ...</text>
+  <text x="470" y="638" class="text">- mr-1-0, mr-1-1 ...</text>
+  <text x="470" y="666" class="text">- each file belongs to one reduce bucket</text>
+
+  <rect x="860" y="560" width="260" height="120" class="box" fill="#dff6f2"/>
+  <text x="990" y="595" text-anchor="middle" class="box-title">Final Output</text>
+  <text x="900" y="630" class="text">- mr-out-0</text>
+  <text x="900" y="656" class="text">- mr-out-1 ... mr-out-(R-1)</text>
+
+  <line x1="340" y1="360" x2="420" y2="180" class="arrow"/>
+  <line x1="860" y1="360" x2="780" y2="180" class="arrow"/>
+  <line x1="420" y1="205" x2="340" y2="385" class="arrow dash"/>
+  <line x1="780" y1="205" x2="860" y2="385" class="arrow dash"/>
+
+  <line x1="210" y1="560" x2="210" y2="470" class="arrow"/>
+  <line x1="340" y1="430" x2="430" y2="600" class="arrow"/>
+  <line x1="770" y1="620" x2="860" y2="430" class="arrow"/>
+  <line x1="990" y1="470" x2="990" y2="560" class="arrow"/>
+
+  <text x="325" y="255" class="small">worker pulls task</text>
+  <text x="792" y="255" class="small">assign task / reply</text>
+  <text x="352" y="522" class="small">write mr-X-Y</text>
+  <text x="790" y="525" class="small">read own bucket Y</text>
+  <text x="525" y="732" class="small">Task identity: TaskType + TaskID + Attempt</text>
+</svg>
