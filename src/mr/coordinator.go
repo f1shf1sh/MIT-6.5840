@@ -33,7 +33,6 @@ func (c *Coordinator) Register(args *RegisterArgs, reply *RegisterReply) error {
 	defer c.mu.Unlock()
 
 	// Server how to registration worker info?
-	reply.WorkerID = c.workerCounts
 	c.workerCounts++
 	return nil
 }
@@ -53,13 +52,13 @@ func (c *Coordinator) advancePhaseLocked() {
 	}
 }
 
-func (c *Coordinator) assignIdleTaskLocked(taskPool []Task, tp TaskType, workerID int, reply *RequestTaskReply) bool {
+func (c *Coordinator) assignIdleTaskLocked(taskPool []Task, tp TaskType, reply *RequestTaskReply) bool {
 	for i := range taskPool {
 		if taskPool[i].Ref.State != Idle {
 			continue
 		}
 		taskPool[i].Ref.State = Running
-		taskPool[i].WorkerID = workerID
+		// taskPool[i].WorkerID = workerID
 		taskPool[i].StartTime = time.Now()
 
 		reply.MapTaskFile = taskPool[i].MapTaskFile
@@ -83,12 +82,12 @@ func (c *Coordinator) RequestTask(args *RequestTaskArgs, reply *RequestTaskReply
 	c.advancePhaseLocked()
 	switch c.Phase {
 	case MapPhase:
-		if c.assignIdleTaskLocked(c.mapTaskPool, Map, args.WorkerID, reply) {
+		if c.assignIdleTaskLocked(c.mapTaskPool, Map, reply) {
 			return nil
 		}
 		reply.Ref.Type = Wait
 	case ReducePhase:
-		if c.assignIdleTaskLocked(c.reduceTaskPool, Reduce, args.WorkerID, reply) {
+		if c.assignIdleTaskLocked(c.reduceTaskPool, Reduce, reply) {
 			return nil
 		}
 		reply.Ref.Type = Wait
@@ -192,7 +191,6 @@ func (c *Coordinator) checkTimeoutLocked(tasks []Task) {
 		t := &tasks[i]
 		if t.Ref.State == Running && time.Since(t.StartTime) > 10*time.Second {
 			t.Ref.State = Idle
-			t.WorkerID = -1
 			t.StartTime = time.Time{}
 			t.Ref.Attempt++
 		}
@@ -217,7 +215,6 @@ func MakeCoordinator(sockname string, files []string, nReduce int) *Coordinator 
 				TaskID: i,
 			},
 			MapTaskFile: file,
-			WorkerID:    -1,
 		}
 	}
 
@@ -229,7 +226,6 @@ func MakeCoordinator(sockname string, files []string, nReduce int) *Coordinator 
 				State:  Idle,
 				TaskID: i,
 			},
-			WorkerID: -1,
 		})
 	}
 

@@ -56,7 +56,6 @@ type TaskRef struct {
 }
 type Task struct {
 	Ref         TaskRef
-	WorkerID    int
 	MapTaskFile string
 	StartTime   time.Time
 }
@@ -67,11 +66,9 @@ type RegisterArgs struct {
 	Key string
 }
 type RegisterReply struct {
-	WorkerID int
 }
 
 type RequestTaskArgs struct {
-	WorkerID int
 }
 
 // MapTaskFile: input file for map task

@@ -43,13 +43,13 @@ func Worker(sockname string, mapf func(string, string) []KeyValue,
 
 	// Your worker implementation here.
 	// uncomment to send the Example RPC to the coordinator.
-	workerID, err := Register()
+	err := Register()
 	if err != nil {
 		log.Fatalf("Worker Register err: %v", err)
 	}
 
 	for {
-		reply, err := RequestTask(workerID)
+		reply, err := RequestTask()
 		if err != nil {
 			log.Fatalf("[Worker] RequestTask err: %v", err)
 		}
@@ -76,22 +76,21 @@ func Worker(sockname string, mapf func(string, string) []KeyValue,
 	}
 }
 
-func Register() (int, error) {
+func Register() error {
 	args := RegisterArgs{}
 	reply := RegisterReply{}
 	ok := call("Coordinator.Register", &args, &reply)
 	if ok {
-		return reply.WorkerID, nil
+		return nil
 	} else {
-		return -1, fmt.Errorf("call failed")
+		return fmt.Errorf("call failed")
 	}
 }
 
-func RequestTask(workerID int) (RequestTaskReply, error) {
+func RequestTask() (RequestTaskReply, error) {
 	args := RequestTaskArgs{}
 	reply := RequestTaskReply{}
 
-	args.WorkerID = workerID
 	ok := call("Coordinator.RequestTask", &args, &reply)
 	if ok {
 		return reply, nil
