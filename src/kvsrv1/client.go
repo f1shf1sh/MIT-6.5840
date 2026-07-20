@@ -1,6 +1,8 @@
 package kvsrv
 
 import (
+	"time"
+
 	"6.5840/kvsrv1/rpc"
 	kvtest "6.5840/kvtest1"
 	tester "6.5840/tester1"
@@ -34,12 +36,13 @@ func (ck *Clerk) Get(key string) (string, rpc.Tversion, rpc.Err) {
 	}
 	reply := &rpc.GetReply{}
 
-	ok := ck.clnt.Call(ck.server, "KVServer.Get", args, reply)
-	if !ok {
-		return "", 0, reply.Err
+	for {
+		ok := ck.clnt.Call(ck.server, "KVServer.Get", args, reply)
+		if ok {
+			return reply.Value, reply.Version, reply.Err
+		}
+		time.Sleep(100 * time.Millisecond)
 	}
-
-	return reply.Value, reply.Version, reply.Err
 }
 
 // Put updates key with value only if the version in the
@@ -68,10 +71,20 @@ func (ck *Clerk) Put(key, value string, version rpc.Tversion) rpc.Err {
 	}
 	reply := &rpc.PutReply{}
 
-	ok := ck.clnt.Call(ck.server, "KVServer.Put", args, reply)
-	if !ok {
-		return reply.Err
-	}
+	resend := false
 
-	return reply.Err
+	for {
+		ok := ck.clnt.Call(ck.server, "KVServer.Put", args, reply)
+		if ok {
+			if reply.Err == rpc.ErrVersion && resend {
+				return rpc.ErrMaybe
+			}
+			return reply.Err
+		}
+
+		// if the client fails to receive a reply, set var first to false to
+		// indicate the response of the first RPC was lost.
+		resend = true
+		time.Sleep(100 * time.Millisecond)
+	}
 }
